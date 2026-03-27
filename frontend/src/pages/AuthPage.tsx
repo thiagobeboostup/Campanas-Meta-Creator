@@ -9,6 +9,9 @@ export default function AuthPage() {
   const queryClient = useQueryClient()
   const [oauthError, setOauthError] = useState('')
   const [polling, setPolling] = useState(false)
+  const [showManualToken, setShowManualToken] = useState(false)
+  const [manualToken, setManualToken] = useState('')
+  const [tokenError, setTokenError] = useState('')
 
   const { data: authStatus, isLoading } = useQuery<AuthStatus>({
     queryKey: ['auth-status'],
@@ -25,6 +28,20 @@ export default function AuthPage() {
     },
     onError: (err: Error) => {
       setOauthError(err.message)
+    },
+  })
+
+  const validateToken = useMutation({
+    mutationFn: (token: string) =>
+      api.post('/auth/meta/token', { access_token: token }),
+    onSuccess: () => {
+      setTokenError('')
+      setManualToken('')
+      setShowManualToken(false)
+      queryClient.invalidateQueries({ queryKey: ['auth-status'] })
+    },
+    onError: (err: Error) => {
+      setTokenError(err.message)
     },
   })
 
@@ -66,7 +83,7 @@ export default function AuthPage() {
         <p className="text-gray-500">Conecta tu cuenta de Meta para gestionar campanas</p>
       </div>
 
-      {/* Meta OAuth - Primary */}
+      {/* Meta Connection - Primary */}
       <div className="bg-white rounded-xl border border-gray-200 p-8 space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">Meta Ads</h3>
@@ -85,7 +102,7 @@ export default function AuthPage() {
           <div className="space-y-4">
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-green-800 font-medium">
-                Conectado como {authStatus.business_name || 'Meta Business'}
+                Conectado como {authStatus.meta_business_name || 'Meta Business'}
               </p>
               {authStatus.meta_ad_account_id && (
                 <p className="text-green-600 text-sm mt-1">
@@ -106,6 +123,8 @@ export default function AuthPage() {
               Conecta tu cuenta de Facebook para acceder a tus Business Portfolios,
               cuentas publicitarias y paginas.
             </p>
+
+            {/* OAuth Button */}
             <button
               onClick={() => getOAuthUrl.mutate()}
               disabled={getOAuthUrl.isPending || polling}
@@ -134,6 +153,73 @@ export default function AuthPage() {
               <p className="text-xs text-gray-400 text-center">
                 Completa la autorizacion en la ventana emergente. Esta pagina se actualizara automaticamente.
               </p>
+            )}
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-400">o</span>
+              </div>
+            </div>
+
+            {/* Manual Token Option */}
+            {!showManualToken ? (
+              <button
+                onClick={() => setShowManualToken(true)}
+                className="w-full py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors text-sm"
+              >
+                Pegar token manualmente (Graph API Explorer)
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  Access Token de Meta
+                </label>
+                <p className="text-xs text-gray-400">
+                  Genera un token en{' '}
+                  <a
+                    href="https://developers.facebook.com/tools/explorer/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 underline"
+                  >
+                    Graph API Explorer
+                  </a>
+                  {' '}con permisos: ads_management, ads_read, business_management, pages_read_engagement
+                </p>
+                <textarea
+                  value={manualToken}
+                  onChange={(e) => setManualToken(e.target.value)}
+                  placeholder="EAAxxxxxxx..."
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => validateToken.mutate(manualToken.trim())}
+                    disabled={!manualToken.trim() || validateToken.isPending}
+                    className="flex-1 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors text-sm"
+                  >
+                    {validateToken.isPending ? 'Validando...' : 'Validar y conectar'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowManualToken(false)
+                      setManualToken('')
+                      setTokenError('')
+                    }}
+                    className="px-4 py-2.5 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 text-sm"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                {tokenError && (
+                  <p className="text-sm text-red-600">{tokenError}</p>
+                )}
+              </div>
             )}
           </div>
         )}
