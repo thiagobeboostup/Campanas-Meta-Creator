@@ -10,7 +10,7 @@ const router = Router();
 
 router.post("/:id", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
 
     // Validate auth before starting SSE
     let auth: Awaited<ReturnType<typeof getMetaAuth>>;
@@ -39,18 +39,15 @@ router.post("/:id", async (req: Request, res: Response) => {
 
     try {
       const { CampaignBuilder } = await import("../services/campaign-builder.js");
-      const { MetaAPIService } = await import("../services/meta-api.js");
+      const { MetaApiService } = await import("../services/meta-api.js");
 
-      const meta = new MetaAPIService(auth.accessToken, auth.pageId ?? "");
+      const meta = new MetaApiService(auth.accessToken, auth.pageId ?? "");
       const builder = new CampaignBuilder(db, meta);
 
-      // Register progress callback
-      builder.onProgress((event: Record<string, any>) => {
+      // Deploy with progress callback that sends SSE events
+      const result = await builder.deploy(projectId, (event: Record<string, any>) => {
         sendEvent(event);
       });
-
-      // Run deployment
-      const result = await builder.deploy(projectId);
 
       sendEvent({
         status: "complete",
@@ -77,7 +74,7 @@ router.post("/:id", async (req: Request, res: Response) => {
 
 router.get("/:id/status", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
 
     const projectRows = await db
       .select()
@@ -102,7 +99,7 @@ router.get("/:id/status", async (req: Request, res: Response) => {
 
 router.post("/:id/rollback", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
     const keepPartial = req.query.keep_partial === "true";
 
     let auth: Awaited<ReturnType<typeof getMetaAuth>>;
@@ -112,10 +109,10 @@ router.post("/:id/rollback", async (req: Request, res: Response) => {
       return res.status(e.status ?? 401).json({ detail: e.message ?? "Meta not authenticated" });
     }
 
-    const { MetaAPIService } = await import("../services/meta-api.js");
+    const { MetaApiService } = await import("../services/meta-api.js");
     const { rollbackProject } = await import("../services/rollback.js");
 
-    const meta = new MetaAPIService(auth.accessToken, auth.pageId ?? "");
+    const meta = new MetaApiService(auth.accessToken, auth.pageId ?? "");
     const result = await rollbackProject(db, meta, projectId, keepPartial);
 
     return res.json(result);
@@ -128,7 +125,7 @@ router.post("/:id/rollback", async (req: Request, res: Response) => {
 
 router.get("/:id/log", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
 
     const rows = await db
       .select()
