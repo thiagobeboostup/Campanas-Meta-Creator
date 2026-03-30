@@ -70,6 +70,45 @@ async def health_check():
     return {"status": "ok", "version": "1.0.0"}
 
 
+@app.get("/api/debug")
+async def debug_check():
+    """Debug endpoint to check serverless environment."""
+    import traceback
+    checks = {}
+
+    # Check settings
+    try:
+        s = get_settings()
+        checks["settings"] = {
+            "meta_app_id_set": bool(s.meta_app_id),
+            "anthropic_key_set": bool(s.anthropic_api_key),
+            "base_url": s.base_url,
+            "cors_origins": s.cors_origins,
+            "database_url": s.database_url,
+            "storage_path": s.storage_path,
+        }
+    except Exception as e:
+        checks["settings_error"] = traceback.format_exc()
+
+    # Check DB
+    try:
+        from database import get_db, init_db
+        await init_db()
+        checks["db"] = "ok"
+    except Exception as e:
+        checks["db_error"] = traceback.format_exc()
+
+    # Check imports
+    for mod_name in ["anthropic", "httpx", "sqlalchemy", "docx"]:
+        try:
+            __import__(mod_name)
+            checks[f"import_{mod_name}"] = "ok"
+        except Exception:
+            checks[f"import_{mod_name}"] = "missing"
+
+    return checks
+
+
 # Serve frontend static files in production
 frontend_dist = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 if os.path.isdir(frontend_dist):

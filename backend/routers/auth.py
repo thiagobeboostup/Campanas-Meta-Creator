@@ -24,8 +24,14 @@ async def set_meta_token(data: TokenCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(400, f"Invalid token: {e}")
 
     # Get ad accounts and pages
-    accounts = await meta.get_ad_accounts()
-    pages = await meta.get_pages()
+    try:
+        accounts = await meta.get_ad_accounts()
+    except Exception:
+        accounts = []
+    try:
+        pages = await meta.get_pages()
+    except Exception:
+        pages = []
 
     # Remove existing Meta tokens
     await db.execute(delete(AuthToken).where(AuthToken.provider == ProviderEnum.meta))
