@@ -44,6 +44,21 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
+// ── Database initialization (Vercel: lazy on first request) ────────────────
+
+let dbInitialized = false;
+app.use(async (_req, _res, next) => {
+  try {
+    if (!dbInitialized) {
+      await initDb();
+      dbInitialized = true;
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── Health check ────────────────────────────────────────────────────────────
 
 app.get("/api/health", (_req, res) => {
@@ -61,7 +76,14 @@ app.use("/api/deploy", deployRouter);
 app.use("/api/manage", manageRouter);
 app.use("/api/meta", metaAccountsRouter);
 
-// ── Database initialization & server start ──────────────────────────────────
+// ── Global error handler ───────────────────────────────────────────────────
+
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ detail: err?.message || "Internal server error", stack: process.env.NODE_ENV !== "production" ? err?.stack : undefined });
+});
+
+// ── Server start (local dev only) ──────────────────────────────────────────
 
 const isVercel = !!process.env.VERCEL;
 
@@ -78,16 +100,6 @@ if (!isVercel) {
       console.error("Failed to initialize database:", err);
       process.exit(1);
     });
-} else {
-  // For Vercel, initialize DB on first request
-  let dbInitialized = false;
-  app.use(async (_req, _res, next) => {
-    if (!dbInitialized) {
-      await initDb();
-      dbInitialized = true;
-    }
-    next();
-  });
 }
 
 export default app;
