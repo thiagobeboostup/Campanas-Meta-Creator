@@ -21,7 +21,7 @@ const FORMAT_COLORS: Record<string, string> = {
   horizontal: 'bg-cyan-100 text-cyan-700',
 }
 
-function formatFileSize(bytes: number | null): string {
+function formatFileSize(bytes: number | null | undefined): string {
   if (!bytes) return '--'
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
