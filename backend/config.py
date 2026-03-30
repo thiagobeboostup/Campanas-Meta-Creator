@@ -1,3 +1,4 @@
+import os
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 
@@ -20,7 +21,7 @@ class Settings(BaseSettings):
     encryption_key: str = ""
     database_url: str = "sqlite+aiosqlite:///./meta_ads_builder.db"
     cors_origins: str = "http://localhost:5173"
-    storage_path: str = "./storage"
+    storage_path: str = "/tmp/storage" if os.environ.get("VERCEL") else "./storage"
     base_url: str = "http://localhost:8000"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
