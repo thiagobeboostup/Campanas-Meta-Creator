@@ -3,9 +3,10 @@ import sys
 import os
 import traceback
 
-# Backend files are copied into this directory during build
-api_dir = os.path.dirname(__file__)
-sys.path.insert(0, api_dir)
+# The entire project root is available in Vercel's serverless environment
+project_root = os.getcwd()
+backend_dir = os.path.join(project_root, "backend")
+sys.path.insert(0, backend_dir)
 
 # Vercel serverless: use /tmp for DB and storage
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///tmp/meta_ads_builder.db")
@@ -19,12 +20,15 @@ except Exception as e:
 
     @app.get("/api/{path:path}")
     @app.post("/api/{path:path}")
+    @app.put("/api/{path:path}")
+    @app.delete("/api/{path:path}")
     async def debug_error(path: str):
         return {
             "error": "App failed to start",
             "detail": str(e),
-            "traceback": error_detail,
-            "cwd": os.getcwd(),
-            "api_dir": api_dir,
-            "api_files": os.listdir(api_dir)[:30],
+            "traceback": error_detail.split("\n"),
+            "project_root": project_root,
+            "backend_dir": backend_dir,
+            "backend_exists": os.path.isdir(backend_dir),
+            "cwd_files": sorted(os.listdir(project_root))[:20],
         }
