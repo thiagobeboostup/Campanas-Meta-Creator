@@ -39,6 +39,7 @@ export default function AuthPage() {
       setManualToken('')
       setShowManualToken(false)
       queryClient.invalidateQueries({ queryKey: ['auth-status'] })
+      navigate('/select-account')
     },
     onError: (err: Error) => {
       setTokenError(err.message)
@@ -55,6 +56,13 @@ export default function AuthPage() {
       stopPolling()
     }
   }, [polling, authStatus?.meta_connected, stopPolling])
+
+  // Auto-redirect if already connected
+  useEffect(() => {
+    if (authStatus?.meta_connected && !polling) {
+      navigate('/select-account')
+    }
+  }, [authStatus?.meta_connected, polling, navigate])
 
   // Listen for popup message (OAuth callback)
   useEffect(() => {
