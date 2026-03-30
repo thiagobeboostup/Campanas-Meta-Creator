@@ -30,7 +30,7 @@ router.get("/businesses", async (_req: Request, res: Response) => {
 
 router.get("/businesses/:id/ad-accounts", async (req: Request, res: Response) => {
   try {
-    const businessId = req.params.id;
+    const businessId = req.params.id as string;
     const token = await getMetaToken(db);
 
     const resp = await fetch(
@@ -117,7 +117,7 @@ router.post("/select-account", async (req: Request, res: Response) => {
 
 router.get("/campaigns/:id", async (req: Request, res: Response) => {
   try {
-    const adAccountId = req.params.id;
+    const adAccountId = req.params.id as string;
     const token = await getMetaToken(db);
 
     const resp = await fetch(
@@ -138,7 +138,7 @@ router.get("/campaigns/:id", async (req: Request, res: Response) => {
 
 router.get("/campaign-structure/:id", async (req: Request, res: Response) => {
   try {
-    const campaignId = req.params.id;
+    const campaignId = req.params.id as string;
     const token = await getMetaToken(db);
 
     // Fetch campaign
@@ -183,7 +183,7 @@ router.get("/campaign-structure/:id", async (req: Request, res: Response) => {
 
 router.post("/import-campaign/:id", async (req: Request, res: Response) => {
   try {
-    const campaignId = req.params.id;
+    const campaignId = req.params.id as string;
     const { ad_account_id } = req.body;
 
     if (!ad_account_id) {

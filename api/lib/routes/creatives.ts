@@ -53,7 +53,7 @@ function countByFormat(items: Array<{ format?: string | null }>): Record<string,
 
 router.post("/:id/drive-sync", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
     const { drive_url } = req.body;
 
     if (!drive_url) {
@@ -128,7 +128,7 @@ router.post(
   upload.array("files", 50),
   async (req: Request, res: Response) => {
     try {
-      const projectId = parseInt(req.params.id, 10);
+      const projectId = parseInt(req.params.id as string, 10);
 
       const projectRows = await db
         .select()
@@ -220,7 +220,7 @@ router.post(
 
 router.get("/:id", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
 
     const rows = await db
       .select()
@@ -250,7 +250,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
 router.get("/:id/mapping", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
 
     // Load creatives
     const creativeRows = await db
@@ -317,7 +317,7 @@ router.get("/:id/mapping", async (req: Request, res: Response) => {
 
 router.get("/:id/thumbnails", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
 
     const rows = await db
       .select()
@@ -361,7 +361,7 @@ router.get("/:id/thumbnails", async (req: Request, res: Response) => {
 
 router.put("/:id/selection", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
     const { creative_ids } = req.body as { creative_ids: number[] };
 
     if (!Array.isArray(creative_ids)) {
@@ -392,7 +392,7 @@ router.put("/:id/selection", async (req: Request, res: Response) => {
 
 router.get("/:id/assignment", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
 
     // Get selected creatives
     const creativeRows = await db
@@ -442,8 +442,8 @@ router.get("/:id/assignment", async (req: Request, res: Response) => {
 
     let assignments: Record<string, any>;
     try {
-      const { assignCreativesToAdsets } = await import("../services/creative-mapper.js");
-      assignments = assignCreativesToAdsets(creativeList, adsetNames, adCreativeRefs, mode);
+      const { assignCreativesToAdSets } = await import("../services/creative-mapper.js");
+      assignments = assignCreativesToAdSets(creativeList, adsetNames, adCreativeRefs, mode);
     } catch {
       // Fallback: group all creatives under a single key
       assignments = { all: creativeList };

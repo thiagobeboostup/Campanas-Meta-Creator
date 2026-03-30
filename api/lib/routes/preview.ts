@@ -9,7 +9,7 @@ const router = Router();
 
 router.get("/:id", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
 
     // Load project
     const projectRows = await db
@@ -150,7 +150,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     // Build UTM display values
     let urlTags = "";
-    let utmParamsDisplay: Record<string, string> = {};
+    let utmParamsDisplay: any = {};
     let utmPreviewUrl = "";
     const baseUrl = project.destinationUrl ?? "https://example.com";
     try {
@@ -231,7 +231,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
 router.put("/:id/naming-template", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
 
     const projectRows = await db
       .select()

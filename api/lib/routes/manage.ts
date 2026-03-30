@@ -14,15 +14,15 @@ const router = Router();
 
 router.put("/:id/budget", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
     const { daily_budget, lifetime_budget } = req.body;
 
     const auth = await getMetaAuth(db);
 
     const { CampaignManager } = await import("../services/campaign-manager.js");
-    const { MetaAPIService } = await import("../services/meta-api.js");
+    const { MetaApiService } = await import("../services/meta-api.js");
 
-    const meta = new MetaAPIService(auth.accessToken, auth.pageId ?? "");
+    const meta = new MetaApiService(auth.accessToken, auth.pageId ?? "");
     const manager = new CampaignManager(db, meta);
 
     const result = await manager.updateBudget(projectId, daily_budget, lifetime_budget);
@@ -36,7 +36,7 @@ router.put("/:id/budget", async (req: Request, res: Response) => {
 
 router.put("/adset/:id/budget", async (req: Request, res: Response) => {
   try {
-    const adsetId = parseInt(req.params.id, 10);
+    const adsetId = parseInt(req.params.id as string, 10);
     const { daily_budget } = req.body;
 
     if (daily_budget == null) {
@@ -46,12 +46,12 @@ router.put("/adset/:id/budget", async (req: Request, res: Response) => {
     const auth = await getMetaAuth(db);
 
     const { CampaignManager } = await import("../services/campaign-manager.js");
-    const { MetaAPIService } = await import("../services/meta-api.js");
+    const { MetaApiService } = await import("../services/meta-api.js");
 
-    const meta = new MetaAPIService(auth.accessToken, auth.pageId ?? "");
+    const meta = new MetaApiService(auth.accessToken, auth.pageId ?? "");
     const manager = new CampaignManager(db, meta);
 
-    const result = await manager.updateAdsetBudget(adsetId, daily_budget);
+    const result = await manager.updateAdSetBudget(adsetId, daily_budget);
     return res.json(result);
   } catch (e: any) {
     return res.status(e.status ?? 500).json({ detail: e.message ?? "Internal server error" });
@@ -62,7 +62,7 @@ router.put("/adset/:id/budget", async (req: Request, res: Response) => {
 
 router.post("/:id/adset", async (req: Request, res: Response) => {
   try {
-    const projectId = parseInt(req.params.id, 10);
+    const projectId = parseInt(req.params.id as string, 10);
     const {
       name,
       targeting_json,
@@ -79,12 +79,12 @@ router.post("/:id/adset", async (req: Request, res: Response) => {
     const auth = await getMetaAuth(db);
 
     const { CampaignManager } = await import("../services/campaign-manager.js");
-    const { MetaAPIService } = await import("../services/meta-api.js");
+    const { MetaApiService } = await import("../services/meta-api.js");
 
-    const meta = new MetaAPIService(auth.accessToken, auth.pageId ?? "");
+    const meta = new MetaApiService(auth.accessToken, auth.pageId ?? "");
     const manager = new CampaignManager(db, meta);
 
-    const adset = await manager.addAdset(
+    const adset = await manager.addAdSet(
       projectId,
       name,
       targeting_json,
@@ -97,8 +97,8 @@ router.post("/:id/adset", async (req: Request, res: Response) => {
     return res.json({
       status: "created",
       adset_id: adset.id,
-      meta_adset_id: adset.meta_adset_id,
-      generated_name: adset.generated_name,
+      meta_adset_id: adset.metaAdsetId,
+      generated_name: adset.generatedName,
     });
   } catch (e: any) {
     return res.status(e.status ?? 500).json({ detail: e.message ?? "Internal server error" });
@@ -109,7 +109,7 @@ router.post("/:id/adset", async (req: Request, res: Response) => {
 
 router.post("/adset/:id/ad", async (req: Request, res: Response) => {
   try {
-    const adsetId = parseInt(req.params.id, 10);
+    const adsetId = parseInt(req.params.id as string, 10);
     const {
       name,
       creative_id,
@@ -130,9 +130,9 @@ router.post("/adset/:id/ad", async (req: Request, res: Response) => {
     const auth = await getMetaAuth(db);
 
     const { CampaignManager } = await import("../services/campaign-manager.js");
-    const { MetaAPIService } = await import("../services/meta-api.js");
+    const { MetaApiService } = await import("../services/meta-api.js");
 
-    const meta = new MetaAPIService(auth.accessToken, auth.pageId ?? "");
+    const meta = new MetaApiService(auth.accessToken, auth.pageId ?? "");
     const manager = new CampaignManager(db, meta);
 
     const ad = await manager.addAd(
@@ -149,8 +149,8 @@ router.post("/adset/:id/ad", async (req: Request, res: Response) => {
     return res.json({
       status: "created",
       ad_id: ad.id,
-      meta_ad_id: ad.meta_ad_id,
-      generated_name: ad.generated_name,
+      meta_ad_id: ad.metaAdId,
+      generated_name: ad.generatedName,
     });
   } catch (e: any) {
     return res.status(e.status ?? 500).json({ detail: e.message ?? "Internal server error" });
@@ -161,7 +161,7 @@ router.post("/adset/:id/ad", async (req: Request, res: Response) => {
 
 router.put("/ad/:id/status", async (req: Request, res: Response) => {
   try {
-    const adId = parseInt(req.params.id, 10);
+    const adId = parseInt(req.params.id as string, 10);
     const { status } = req.body as { status: string };
 
     if (!status || !["ACTIVE", "PAUSED"].includes(status.toUpperCase())) {
@@ -180,8 +180,8 @@ router.put("/ad/:id/status", async (req: Request, res: Response) => {
 
     const auth = await getMetaAuth(db);
 
-    const { MetaAPIService } = await import("../services/meta-api.js");
-    const meta = new MetaAPIService(auth.accessToken, auth.pageId ?? "");
+    const { MetaApiService } = await import("../services/meta-api.js");
+    const meta = new MetaApiService(auth.accessToken, auth.pageId ?? "");
     await meta.updateAdStatus(ad.metaAdId, status.toUpperCase());
 
     await db
@@ -199,7 +199,7 @@ router.put("/ad/:id/status", async (req: Request, res: Response) => {
 
 router.put("/ad/:id/copy", async (req: Request, res: Response) => {
   try {
-    const adId = parseInt(req.params.id, 10);
+    const adId = parseInt(req.params.id as string, 10);
     const { headline, primary_text, description } = req.body;
 
     const adRows = await db
@@ -234,7 +234,7 @@ router.post(
   upload.single("file"),
   async (req: Request, res: Response) => {
     try {
-      const projectId = parseInt(req.params.id, 10);
+      const projectId = parseInt(req.params.id as string, 10);
 
       const projectRows = await db
         .select()
