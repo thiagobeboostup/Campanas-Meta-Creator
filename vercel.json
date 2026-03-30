@@ -1,15 +1,8 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "buildCommand": "cp -r backend/* api/ && cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "installCommand": "echo 'skip'",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/index" }
-  ],
-  "functions": {
-    "api/index.py": {
-      "runtime": "@vercel/python@4.5.0",
-      "maxDuration": 60,
-      "includeFiles": "backend/**"
-    }
-  }
+  ]
 }

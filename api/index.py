@@ -1,22 +1,20 @@
-"""Vercel serverless function entry point - wraps FastAPI app."""
+"""Vercel serverless function entry point."""
 import sys
 import os
 import traceback
 
-# Add backend directory to Python path
-backend_dir = os.path.join(os.path.dirname(__file__), '..', 'backend')
-sys.path.insert(0, backend_dir)
+# Backend files are copied into this directory during build
+api_dir = os.path.dirname(__file__)
+sys.path.insert(0, api_dir)
 
-# Override DB path to /tmp for Vercel (serverless has no persistent FS)
+# Vercel serverless: use /tmp for DB and storage
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///tmp/meta_ads_builder.db")
 
 try:
     from main import app
 except Exception as e:
-    # If main app fails to import, create a minimal debug app
     from fastapi import FastAPI
     app = FastAPI()
-
     error_detail = traceback.format_exc()
 
     @app.get("/api/{path:path}")
@@ -27,8 +25,6 @@ except Exception as e:
             "detail": str(e),
             "traceback": error_detail,
             "cwd": os.getcwd(),
-            "files_in_cwd": os.listdir("."),
-            "backend_dir": backend_dir,
-            "backend_exists": os.path.isdir(backend_dir),
-            "backend_files": os.listdir(backend_dir) if os.path.isdir(backend_dir) else "NOT FOUND",
+            "api_dir": api_dir,
+            "api_files": os.listdir(api_dir)[:30],
         }
