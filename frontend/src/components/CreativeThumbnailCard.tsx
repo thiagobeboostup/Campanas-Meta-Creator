@@ -1,8 +1,17 @@
-import type { CreativeWithThumbnail } from '../types/campaign'
-
 interface Props {
-  creative: CreativeWithThumbnail
-  onToggle: () => void
+  creative: {
+    id: number
+    original_name: string
+    base_name?: string | null
+    format?: string | null
+    aspect_ratio?: string | null
+    media_type?: string | null
+    thumbnail_url?: string | null
+    selected?: boolean
+    adset_name?: string | null
+    file_size_bytes?: number | null
+  }
+  onToggle: (selected: boolean) => void
   selected: boolean
 }
 
@@ -67,7 +76,7 @@ export default function CreativeThumbnailCard({ creative, onToggle, selected }: 
           <input
             type="checkbox"
             checked={selected}
-            onChange={onToggle}
+            onChange={(e) => onToggle(e.target.checked)}
             className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
           />
         </label>

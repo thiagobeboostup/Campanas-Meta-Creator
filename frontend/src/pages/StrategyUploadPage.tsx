@@ -163,7 +163,7 @@ export default function StrategyUploadPage() {
           <MissingFieldsForm
             missingFields={parseResult.missing_fields}
             onSubmit={(fields) => completeFields.mutate(fields)}
-            isLoading={completeFields.isPending}
+            isSubmitting={completeFields.isPending}
           />
 
           {completeFields.isError && (
