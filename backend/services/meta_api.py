@@ -2,15 +2,20 @@
 import asyncio
 import logging
 from typing import Optional
-from facebook_business.api import FacebookAdsApi
-from facebook_business.adobjects.adaccount import AdAccount
-from facebook_business.adobjects.campaign import Campaign
-from facebook_business.adobjects.adset import AdSet
-from facebook_business.adobjects.ad import Ad
-from facebook_business.adobjects.adcreative import AdCreative
-from facebook_business.adobjects.adimage import AdImage
-from facebook_business.adobjects.advideo import AdVideo
-from facebook_business.exceptions import FacebookRequestError
+
+try:
+    from facebook_business.api import FacebookAdsApi
+    from facebook_business.adobjects.adaccount import AdAccount
+    from facebook_business.adobjects.campaign import Campaign
+    from facebook_business.adobjects.adset import AdSet
+    from facebook_business.adobjects.ad import Ad
+    from facebook_business.adobjects.adcreative import AdCreative
+    from facebook_business.adobjects.adimage import AdImage
+    from facebook_business.adobjects.advideo import AdVideo
+    from facebook_business.exceptions import FacebookRequestError
+    FB_SDK_AVAILABLE = True
+except Exception:
+    FB_SDK_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +28,8 @@ class MetaAPIService:
     def __init__(self, access_token: str, app_id: str = "", app_secret: str = "", page_id: str = ""):
         self.access_token = access_token
         self.page_id = page_id
-        FacebookAdsApi.init(app_id, app_secret, access_token)
+        if FB_SDK_AVAILABLE:
+            FacebookAdsApi.init(app_id, app_secret, access_token)
 
     async def get_pages(self) -> list[dict]:
         """Get Facebook Pages accessible with the current token."""
