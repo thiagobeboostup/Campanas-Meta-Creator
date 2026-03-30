@@ -96,7 +96,7 @@ async def get_meta_oauth_url():
     url = (
         f"https://www.facebook.com/v21.0/dialog/oauth?"
         f"client_id={settings.meta_app_id}"
-        f"&redirect_uri=http://localhost:8000/api/auth/meta/oauth/callback"
+        f"&redirect_uri={settings.base_url}/api/auth/meta/oauth/callback"
         f"&scope={scopes}"
         f"&response_type=code"
     )
@@ -116,7 +116,7 @@ async def meta_oauth_callback(code: str, db: AsyncSession = Depends(get_db)):
             params={
                 "client_id": settings.meta_app_id,
                 "client_secret": settings.meta_app_secret,
-                "redirect_uri": "http://localhost:8000/api/auth/meta/oauth/callback",
+                "redirect_uri": "{settings.base_url}/api/auth/meta/oauth/callback",
                 "code": code,
             },
         )
@@ -152,7 +152,9 @@ async def meta_oauth_callback(code: str, db: AsyncSession = Depends(get_db)):
     await db.commit()
 
     # Redirect to frontend
-    return {"status": "connected", "redirect": "http://localhost:5173/auth?meta=success"}
+    from fastapi.responses import RedirectResponse
+    frontend_url = settings.cors_origins.split(",")[0]
+    return RedirectResponse(url=f"{frontend_url}/auth?meta=success")
 
 
 class GoogleCredentials(PydanticBaseModel):
