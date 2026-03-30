@@ -15,7 +15,7 @@ function getClient(): Client {
         authToken: config.TURSO_AUTH_TOKEN || undefined,
       });
     } else {
-      _client = createClient({ url: ":memory:" });
+      _client = createClient({ url: "file:/tmp/meta_ads.db" });
     }
   }
   return _client;
