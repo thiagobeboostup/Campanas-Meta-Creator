@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "@libsql/client": "^0.14.0",
+    "@neondatabase/serverless": "^0.10.0",
     "drizzle-orm": "^0.38.0",
     "express": "^4.21.0",
     "mammoth": "^1.8.0",

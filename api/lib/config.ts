@@ -5,8 +5,8 @@ const envSchema = z.object({
   META_APP_SECRET: z.string().default(""),
   ANTHROPIC_API_KEY: z.string().default(""),
   ENCRYPTION_KEY: z.string().default(""),
-  TURSO_DATABASE_URL: z.string().default(""),
-  TURSO_AUTH_TOKEN: z.string().default(""),
+  DATABASE_URL: z.string().default(""),
+  POSTGRES_URL: z.string().default(""),
   BASE_URL: z.string().default("http://localhost:3000"),
   CORS_ORIGINS: z.string().default("http://localhost:5173"),
 });
