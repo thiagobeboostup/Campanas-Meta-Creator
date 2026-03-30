@@ -139,6 +139,21 @@ export async function initDb(): Promise<LibSQLDatabase<typeof schema>> {
   return db;
 }
 
-export { getDb as db };
+/**
+ * Lazily-initialized database instance.
+ * All route files import this and call methods directly (db.select(), etc.).
+ * The Proxy ensures getDb() is called on first property access, so the
+ * instance is created exactly once, on demand.
+ */
+export const db: LibSQLDatabase<typeof schema> = new Proxy({} as LibSQLDatabase<typeof schema>, {
+  get(_target, prop, receiver) {
+    const instance = getDb();
+    const value = (instance as any)[prop];
+    if (typeof value === "function") {
+      return value.bind(instance);
+    }
+    return value;
+  },
+});
 
 export type Database = LibSQLDatabase<typeof schema>;
