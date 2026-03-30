@@ -5,11 +5,21 @@ import logging
 import subprocess
 from pathlib import Path
 from typing import Optional
-from google.oauth2 import service_account
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload
-from PIL import Image
+
+try:
+    from google.oauth2 import service_account
+    from google.oauth2.credentials import Credentials
+    from googleapiclient.discovery import build
+    from googleapiclient.http import MediaIoBaseDownload
+    GOOGLE_AVAILABLE = True
+except Exception:
+    GOOGLE_AVAILABLE = False
+
+try:
+    from PIL import Image
+    PIL_AVAILABLE = True
+except Exception:
+    PIL_AVAILABLE = False
 
 from config import get_settings
 from utils.constants import IMAGE_EXTENSIONS, VIDEO_EXTENSIONS, FORMAT_PATTERNS

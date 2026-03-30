@@ -17,7 +17,11 @@ from schemas.creative import (
     CreativeResponse, CreativeMappingResponse, CreativeWithThumbnail,
     CreativeSelectionUpdate, CreativeAssignmentUpdate, CreativeAssignmentResponse,
 )
-from services.google_drive import GoogleDriveService
+try:
+    from services.google_drive import GoogleDriveService
+    DRIVE_AVAILABLE = True
+except Exception:
+    DRIVE_AVAILABLE = False
 from services.creative_mapper import CreativeMapper, build_creatives_index, assign_creatives_to_adsets
 
 router = APIRouter(prefix="/api/creatives", tags=["creatives"])
